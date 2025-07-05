@@ -10,21 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@main
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '8.0.x'
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
 
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Test
-      run: dotnet test
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
 
-    - name: Create the package
-      run: dotnet pack --configuration Release
+      - name: Run Tests
+        run: dotnet test --no-build --verbosity normal
 
-    - name: Publish
-      run: dotnet nuget push "MoneyExtension/bin/Release/*.nupkg" -k ${{ secrets.TOKEN }} -s https://api.nuget.org/v3/index.json
+      - name: Create NuGet Package
+        run: dotnet pack --configuration Release --no-build
+
+      - name: Publish to NuGet
+        run: dotnet nuget push "MoneyExtension/bin/Release/*.nupkg" --api-key ${{ secrets.MONEYEXTENSION_PUBLISH_CI }} --source https://api.nuget.org/v3/index.json
