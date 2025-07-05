@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -31,4 +35,4 @@ jobs:
         run: dotnet pack --configuration Release --no-build
 
       - name: Publish to NuGet
-        run: dotnet nuget push "MoneyExtension/bin/Release/*.nupkg" --api-key ${{ secrets.TESTE_MONEY_EXTENSION }} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ secrets.TESTE_MONEY_EXTENSION }} -s ${{ env.NUGET_SOURCE_URL }}
